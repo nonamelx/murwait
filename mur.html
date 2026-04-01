@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03.04 | 06:00</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Динамические плавающие сферы (орбы) */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+            animation-timing-function: ease-in-out;
+        }
+        
+        .orb-1 {
+            width: 50vw; height: 50vw;
+            background: rgba(255, 255, 255, 0.03); /* Очень тусклый белый/серый блик */
+            top: -10%; left: -10%;
+            animation-name: float-1;
+            animation-duration: 14s;
+        }
+        
+        .orb-2 {
+            width: 60vw; height: 60vw;
+            background: rgba(39, 39, 42, 0.4); /* Темно-серый */
+            bottom: -20%; right: -10%;
+            animation-name: float-2;
+            animation-duration: 20s;
+        }
+        
+        .orb-3 {
+            width: 45vw; height: 45vw;
+            background: rgba(24, 24, 27, 0.6); /* Почти черный (глубже фона) */
+            top: 40%; left: 30%;
+            animation-name: float-3;
+            animation-duration: 17s;
+        }
+
+        @keyframes float-1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(15vw, 15vh) scale(1.1); }
+        }
+        @keyframes float-2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-15vw, -15vh) scale(1.05); }
+        }
+        @keyframes float-3 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-20vw, 10vh) scale(1.2); }
+        }
+
+        .timer-unit {
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-zinc-100 relative">
+
+    <!-- Dynamic Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="text-center z-10 px-4">
+        <h1 class="text-zinc-500 uppercase tracking-[0.4em] text-[10px] md:text-xs mb-12 opacity-70">
+            Izhevsk • Until April 3, 06:00
+        </h1>
+
+        <div class="flex gap-4 md:gap-12 justify-center items-baseline">
+            <div class="timer-unit">
+                <div id="hours" class="text-7xl md:text-9xl font-extrabold tracking-tighter">00</div>
+                <div class="text-[10px] uppercase tracking-widest text-zinc-600 mt-2">hours</div>
+            </div>
+            
+            <div class="text-4xl md:text-6xl font-extrabold text-zinc-800 self-start mt-4">:</div>
+
+            <div class="timer-unit">
+                <div id="minutes" class="text-7xl md:text-9xl font-extrabold tracking-tighter">00</div>
+                <div class="text-[10px] uppercase tracking-widest text-zinc-600 mt-2">minutes</div>
+            </div>
+
+            <div class="text-4xl md:text-6xl font-extrabold text-zinc-800 self-start mt-4">:</div>
+
+            <div class="timer-unit">
+                <div id="seconds" class="text-7xl md:text-9xl font-extrabold tracking-tighter text-zinc-400">00</div>
+                <div class="text-[10px] uppercase tracking-widest text-zinc-600 mt-2">seconds</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timerInterval;
+
+        function updateTimer() {
+            // Target date: April 3, 2026, 06:00:00 (Izhevsk UTC+4)
+            const targetDateUTC = Date.UTC(2026, 3, 3, 6 - 4, 0, 0); 
+            
+            const now = Date.now();
+            const diff = targetDateUTC - now;
+
+            if (diff <= 0) {
+                document.querySelector('.text-center').innerHTML = 
+                    '<h1 class="text-4xl md:text-6xl font-extrabold tracking-tighter uppercase">The time has come</h1>';
+                if (timerInterval) clearInterval(timerInterval);
+                return;
+            }
+
+            const h = Math.floor(diff / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+
+            if (hoursEl) hoursEl.innerText = String(h).padStart(2, '0');
+            if (minutesEl) minutesEl.innerText = String(m).padStart(2, '0');
+            if (secondsEl) secondsEl.innerText = String(s).padStart(2, '0');
+        }
+
+        timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>
