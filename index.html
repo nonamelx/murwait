@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>03.04 | 06:00</title>
+    <title>April 3 | 05:00</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap" rel="stylesheet">
     <style>
@@ -81,7 +81,7 @@
 
     <div class="text-center z-10 px-4">
         <h1 class="text-zinc-500 uppercase tracking-[0.4em] text-[10px] md:text-xs mb-12 opacity-70">
-            Izhevsk • Until April 3, 06:00
+            Izhevsk • Until April 3, 05:00
         </h1>
 
         <div class="flex gap-4 md:gap-12 justify-center items-baseline">
@@ -110,8 +110,9 @@
         let timerInterval;
 
         function updateTimer() {
-            // Target date: April 3, 2026, 06:00:00 (Izhevsk UTC+4)
-            const targetDateUTC = Date.UTC(2026, 3, 3, 6 - 4, 0, 0); 
+            // Target date: April 3, 2026, 05:00:00 (Izhevsk UTC+4)
+            // Изменили "6 - 4" на "5 - 4"
+            const targetDateUTC = Date.UTC(2026, 3, 3, 5 - 4, 0, 0); 
             
             const now = Date.now();
             const diff = targetDateUTC - now;
