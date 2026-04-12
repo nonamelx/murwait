@@ -1,144 +1,527 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>April 3 | 05:00</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap" rel="stylesheet">
+    <title>Для тебя <3</title>
     <style>
-        :root {
-            --bg-color: #050505;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            overflow: hidden;
+        body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
         }
-        
-        /* Динамические плавающие сферы (орбы) */
-        .orb {
+
+        #main-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .display-text {
+            font-size: 2.2rem;
+            text-align: center;
+            width: 80%;
+            font-family: sans-serif;
+            font-weight: bold;
+            color: #fff;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* Игровой интерфейс */
+        #game-ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-family: sans-serif;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+            color: #ff4d6d;
+        }
+
+        #game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            z-index: 20;
+        }
+
+        /* Экран перехода между уровнями */
+        #level-splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            text-align: center;
+        }
+
+        .splash-title {
+            font-size: 3rem;
+            color: #ff4d6d;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-family: sans-serif;
+        }
+
+        .heart-target, .bomb-target {
             position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            opacity: 0.6;
-            animation-iteration-count: infinite;
-            animation-direction: alternate;
-            animation-timing-function: ease-in-out;
-        }
-        
-        .orb-1 {
-            width: 50vw; height: 50vw;
-            background: rgba(255, 255, 255, 0.03); /* Очень тусклый белый/серый блик */
-            top: -10%; left: -10%;
-            animation-name: float-1;
-            animation-duration: 14s;
-        }
-        
-        .orb-2 {
-            width: 60vw; height: 60vw;
-            background: rgba(39, 39, 42, 0.4); /* Темно-серый */
-            bottom: -20%; right: -10%;
-            animation-name: float-2;
-            animation-duration: 20s;
-        }
-        
-        .orb-3 {
-            width: 45vw; height: 45vw;
-            background: rgba(24, 24, 27, 0.6); /* Почти черный (глубже фона) */
-            top: 40%; left: 30%;
-            animation-name: float-3;
-            animation-duration: 17s;
+            font-size: 3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
         }
 
-        @keyframes float-1 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(15vw, 15vh) scale(1.1); }
-        }
-        @keyframes float-2 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(-15vw, -15vh) scale(1.05); }
-        }
-        @keyframes float-3 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(-20vw, 10vh) scale(1.2); }
+        .heart-target {
+            filter: drop-shadow(0 0 10px #ff4d6d);
         }
 
-        .timer-unit {
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
+        .bomb-target {
+            filter: drop-shadow(0 0 10px #666);
+        }
+
+        /* Змейка - ограниченное поле */
+        #snake-field {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid #ff4d6d;
+            background-color: #050505;
+            box-shadow: 0 0 20px rgba(255, 77, 109, 0.2);
+        }
+
+        .snake-segment {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #ff4d6d;
+            border-radius: 4px;
+        }
+
+        #love-wall {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 18px; 
+            line-height: 18px;
+            font-weight: bold;
+            overflow: hidden;
+            display: none;
+            color: #ff4d6d;
+            white-space: pre;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            #love-wall { font-size: 10px; line-height: 10px; }
+            .display-text { font-size: 1.5rem; }
+            #game-ui { font-size: 1rem; }
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center text-zinc-100 relative">
+<body>
 
-    <!-- Dynamic Orbs -->
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+    <div id="game-ui">Собрано: <span id="score-val">0</span> / <span id="target-val">10</span></div>
 
-    <div class="text-center z-10 px-4">
-        <h1 class="text-zinc-500 uppercase tracking-[0.4em] text-[10px] md:text-xs mb-12 opacity-70">
-            Izhevsk • Until April 3, 05:00
-        </h1>
-
-        <div class="flex gap-4 md:gap-12 justify-center items-baseline">
-            <div class="timer-unit">
-                <div id="hours" class="text-7xl md:text-9xl font-extrabold tracking-tighter">00</div>
-                <div class="text-[10px] uppercase tracking-widest text-zinc-600 mt-2">hours</div>
-            </div>
-            
-            <div class="text-4xl md:text-6xl font-extrabold text-zinc-800 self-start mt-4">:</div>
-
-            <div class="timer-unit">
-                <div id="minutes" class="text-7xl md:text-9xl font-extrabold tracking-tighter">00</div>
-                <div class="text-[10px] uppercase tracking-widest text-zinc-600 mt-2">minutes</div>
-            </div>
-
-            <div class="text-4xl md:text-6xl font-extrabold text-zinc-800 self-start mt-4">:</div>
-
-            <div class="timer-unit">
-                <div id="seconds" class="text-7xl md:text-9xl font-extrabold tracking-tighter text-zinc-400">00</div>
-                <div class="text-[10px] uppercase tracking-widest text-zinc-600 mt-2">seconds</div>
-            </div>
-        </div>
+    <div id="level-splash">
+        <div class="splash-title" id="splash-title">Уровень 1</div>
+        <div style="font-size: 1.2rem;" id="splash-desc">Описание уровня</div>
     </div>
 
+    <div id="main-container">
+        <div id="text-display" class="display-text"></div>
+    </div>
+
+    <div id="game-container"></div>
+
+    <div id="love-wall"></div>
+
     <script>
-        let timerInterval;
+        const textDisplay = document.getElementById('text-display');
+        const mainContainer = document.getElementById('main-container');
+        const gameContainer = document.getElementById('game-container');
+        const loveWall = document.getElementById('love-wall');
+        const gameUI = document.getElementById('game-ui');
+        const scoreVal = document.getElementById('score-val');
+        const targetVal = document.getElementById('target-val');
+        const levelSplash = document.getElementById('level-splash');
+        const splashTitle = document.getElementById('splash-title');
+        const splashDesc = document.getElementById('splash-desc');
 
-        function updateTimer() {
-            // Target date: April 3, 2026, 05:00:00 (Izhevsk UTC+4)
-            // Изменили "6 - 4" на "5 - 4"
-            const targetDateUTC = Date.UTC(2026, 3, 3, 5 - 4, 0, 0); 
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        let currentScore = 0;
+        let targetScore = 10;
+
+        async function typeText(text, speed = 60) {
+            textDisplay.innerHTML = "";
+            let i = 0;
+            while (i < text.length) {
+                if (text.substr(i, 4) === "<br>") {
+                    textDisplay.innerHTML += "<br>";
+                    i += 4;
+                } else {
+                    textDisplay.innerHTML += text[i];
+                    i++;
+                }
+                await sleep(speed);
+            }
+        }
+
+        async function showSplash(title, desc) {
+            splashTitle.innerText = title;
+            splashDesc.innerText = desc;
+            levelSplash.style.display = 'flex';
+            await sleep(2500);
+            levelSplash.style.display = 'none';
+        }
+
+        async function startSequence() {
+            await sleep(500);
+            await typeText("Приветик<br><br>Мур<br><br><3", 100);
+            await sleep(1500);
+            await typeText("У меня для тебя небольшое приключение.<br><br>Пройди 4 уровня, чтобы добраться до финала.", 60);
+            await sleep(2000);
+            await typeText("Готова?", 100);
+            await sleep(1000);
+            await typeText("3..", 100);
+            await sleep(600);
+            await typeText("2..", 100);
+            await sleep(600);
+            await typeText("1..", 100);
+            await sleep(600);
+
+            mainContainer.style.display = 'none';
+            startRound1();
+        }
+
+        function updateUI(score, target) {
+            gameUI.style.display = 'block';
+            scoreVal.innerText = score;
+            targetVal.innerText = target;
+        }
+
+        // --- РАУНД 1: СТАТИКА ---
+        async function startRound1() {
+            await showSplash("Уровень 1", "Поймай 10 сердечек в случайных местах");
+            currentScore = 0;
+            targetScore = 10;
+            updateUI(0, 10);
+            gameContainer.style.display = 'block';
+            gameContainer.innerHTML = '';
+            spawnRound1Heart();
+        }
+
+        function spawnRound1Heart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart-target';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * (window.innerWidth - 100) + 50 + 'px';
+            heart.style.top = Math.random() * (window.innerHeight - 100) + 50 + 'px';
+            heart.onclick = () => {
+                heart.remove();
+                currentScore++;
+                scoreVal.innerText = currentScore;
+                if (currentScore < targetScore) spawnRound1Heart();
+                else startRound2();
+            };
+            gameContainer.appendChild(heart);
+        }
+
+        // --- РАУНД 2: ЗМЕЙКА ---
+        let snake = [];
+        let snakeDir = { x: 1, y: 0 };
+        let nextDir = { x: 1, y: 0 };
+        let snakeInterval;
+        let snakeFood = { x: 0, y: 0 };
+        const GRID_SIZE = 20;
+        const FIELD_COLS = 20;
+        const FIELD_ROWS = 20;
+
+        async function startRound2() {
+            gameContainer.innerHTML = '';
+            await showSplash("Уровень 2", "Змейка! Управляй на WASD или стрелках.\nСобери 10 сердец и не врезайся в рамку.");
+            currentScore = 0;
+            targetScore = 10;
+            updateUI(0, 10);
+            initSnake();
+        }
+
+        function initSnake() {
+            gameContainer.innerHTML = `<div id="snake-field" style="width:${FIELD_COLS * GRID_SIZE}px; height:${FIELD_ROWS * GRID_SIZE}px;"></div>`;
+            const field = document.getElementById('snake-field');
             
-            const now = Date.now();
-            const diff = targetDateUTC - now;
+            snake = [{ x: 5, y: 10 }, { x: 4, y: 10 }, { x: 3, y: 10 }];
+            snakeDir = { x: 1, y: 0 };
+            nextDir = { x: 1, y: 0 };
+            spawnSnakeFood(field);
+            
+            window.onkeydown = (e) => {
+                const key = e.key.toLowerCase();
+                if ((key === 'w' || key === 'arrowup') && snakeDir.y === 0) nextDir = { x: 0, y: -1 };
+                if ((key === 's' || key === 'arrowdown') && snakeDir.y === 0) nextDir = { x: 0, y: 1 };
+                if ((key === 'a' || key === 'arrowleft') && snakeDir.x === 0) nextDir = { x: -1, y: 0 };
+                if ((key === 'd' || key === 'arrowright') && snakeDir.x === 0) nextDir = { x: 1, y: 0 };
+            };
 
-            if (diff <= 0) {
-                document.querySelector('.text-center').innerHTML = 
-                    '<h1 class="text-4xl md:text-6xl font-extrabold tracking-tighter uppercase">The time has come</h1>';
-                if (timerInterval) clearInterval(timerInterval);
+            if (snakeInterval) clearInterval(snakeInterval);
+            snakeInterval = setInterval(() => updateSnake(field), 150);
+        }
+
+        function spawnSnakeFood(field) {
+            snakeFood = {
+                x: Math.floor(Math.random() * FIELD_COLS),
+                y: Math.floor(Math.random() * FIELD_ROWS)
+            };
+        }
+
+        function updateSnake(field) {
+            snakeDir = nextDir;
+            const head = { x: snake[0].x + snakeDir.x, y: snake[0].y + snakeDir.y };
+
+            if (head.x < 0 || head.y < 0 || head.x >= FIELD_COLS || head.y >= FIELD_ROWS) {
+                restartSnake();
                 return;
             }
 
-            const h = Math.floor(diff / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-            const hoursEl = document.getElementById('hours');
-            const minutesEl = document.getElementById('minutes');
-            const secondsEl = document.getElementById('seconds');
-
-            if (hoursEl) hoursEl.innerText = String(h).padStart(2, '0');
-            if (minutesEl) minutesEl.innerText = String(m).padStart(2, '0');
-            if (secondsEl) secondsEl.innerText = String(s).padStart(2, '0');
+            snake.unshift(head);
+            if (head.x === snakeFood.x && head.y === snakeFood.y) {
+                currentScore++;
+                scoreVal.innerText = currentScore;
+                if (currentScore >= targetScore) {
+                    clearInterval(snakeInterval);
+                    startRound3();
+                    return;
+                }
+                spawnSnakeFood(field);
+            } else {
+                snake.pop();
+            }
+            drawSnake(field);
         }
 
-        timerInterval = setInterval(updateTimer, 1000);
-        updateTimer();
+        function restartSnake() {
+            clearInterval(snakeInterval);
+            currentScore = 0;
+            scoreVal.innerText = 0;
+            initSnake();
+        }
+
+        function drawSnake(field) {
+            field.innerHTML = '';
+            const foodEl = document.createElement('div');
+            foodEl.innerHTML = '❤️';
+            foodEl.style.position = 'absolute';
+            foodEl.style.left = snakeFood.x * GRID_SIZE + 'px';
+            foodEl.style.top = snakeFood.y * GRID_SIZE + 'px';
+            foodEl.style.fontSize = '18px';
+            field.appendChild(foodEl);
+
+            snake.forEach(seg => {
+                const s = document.createElement('div');
+                s.className = 'snake-segment';
+                s.style.left = seg.x * GRID_SIZE + 'px';
+                s.style.top = seg.y * GRID_SIZE + 'px';
+                field.appendChild(s);
+            });
+        }
+
+        // --- РАУНД 3: УВОРАЧИВАНИЕ ---
+        let objects = [];
+        let round3Anim;
+
+        async function startRound3() {
+            gameContainer.innerHTML = '';
+            await showSplash("Уровень 3", "Собери 30 сердец! Уклоняйся от бомбочек 💣.");
+            currentScore = 0;
+            targetScore = 30;
+            updateUI(0, 30);
+            initRound3();
+        }
+
+        function initRound3() {
+            objects = [];
+            gameContainer.innerHTML = '';
+            for(let i=0; i<8; i++) spawnPhysicsObject('❤️');
+            for(let i=0; i<5; i++) spawnPhysicsObject('💣');
+            animateRound3();
+        }
+
+        function spawnPhysicsObject(type) {
+            const obj = {
+                type: type,
+                x: Math.random() * (window.innerWidth - 60),
+                y: Math.random() * (window.innerHeight - 60),
+                // Уменьшил скорость в 2 раза для комфорта
+                vx: (Math.random() - 0.5) * 4,
+                vy: (Math.random() - 0.5) * 4,
+                el: document.createElement('div')
+            };
+            obj.el.className = type === '❤️' ? 'heart-target' : 'bomb-target';
+            obj.el.innerHTML = type;
+            obj.el.style.fontSize = '2.5rem';
+            obj.el.onclick = () => {
+                if (type === '❤️') {
+                    currentScore++;
+                    scoreVal.innerText = currentScore;
+                    obj.x = Math.random() * (window.innerWidth - 60);
+                    obj.y = Math.random() * (window.innerHeight - 60);
+                    if (currentScore >= targetScore) {
+                        cancelAnimationFrame(round3Anim);
+                        startRound4();
+                    }
+                } else {
+                    cancelAnimationFrame(round3Anim);
+                    startRound3();
+                }
+            };
+            gameContainer.appendChild(obj.el);
+            objects.push(obj);
+        }
+
+        function animateRound3() {
+            objects.forEach((obj, i) => {
+                obj.x += obj.vx;
+                obj.y += obj.vy;
+                if (obj.x <= 0 || obj.x >= window.innerWidth - 60) obj.vx *= -1;
+                if (obj.y <= 0 || obj.y >= window.innerHeight - 60) obj.vy *= -1;
+                obj.el.style.left = obj.x + 'px';
+                obj.el.style.top = obj.y + 'px';
+            });
+            round3Anim = requestAnimationFrame(animateRound3);
+        }
+
+        // --- РАУНД 4: ФИНАЛ ---
+        let isFleeing = false;
+
+        async function startRound4() {
+            gameContainer.innerHTML = '';
+            await showSplash("Уровень 4", "Последняя битва. Поймай 5 сердец.");
+            currentScore = 0;
+            targetScore = 5;
+            updateUI(0, 5);
+            spawnRound4Heart();
+        }
+
+        function spawnRound4Heart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart-target';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * (window.innerWidth - 100) + 50 + 'px';
+            heart.style.top = Math.random() * (window.innerHeight - 100) + 50 + 'px';
+
+            const isLast = (currentScore === 4);
+            if (isLast) {
+                isFleeing = true;
+                const escape = (e) => {
+                    if (!isFleeing) return;
+                    const rect = heart.getBoundingClientRect();
+                    const hX = rect.left + 30;
+                    const hY = rect.top + 30;
+                    const dist = Math.hypot(e.clientX - hX, e.clientY - hY);
+                    if (dist < 150) {
+                        const angle = Math.atan2(hY - e.clientY, hX - e.clientX);
+                        let nx = hX + Math.cos(angle) * 200;
+                        let ny = hY + Math.sin(angle) * 200;
+                        nx = Math.max(50, Math.min(window.innerWidth - 100, nx));
+                        ny = Math.max(50, Math.min(window.innerHeight - 100, ny));
+                        heart.style.left = nx - 30 + 'px';
+                        heart.style.top = ny - 30 + 'px';
+                    }
+                };
+                window.onmousemove = escape;
+                setTimeout(() => {
+                    isFleeing = false;
+                    heart.style.filter = 'drop-shadow(0 0 20px #fff)';
+                }, 12000);
+            }
+
+            heart.onclick = () => {
+                if (isLast && isFleeing) return;
+                heart.remove();
+                currentScore++;
+                scoreVal.innerText = currentScore;
+                if (currentScore < targetScore) spawnRound4Heart();
+                else finalPhase();
+            };
+            gameContainer.appendChild(heart);
+        }
+
+        function finalPhase() {
+            gameUI.style.display = 'none';
+            gameContainer.style.display = 'none';
+            loveWall.style.display = 'block';
+            fillWithLove();
+        }
+
+        async function fillWithLove() {
+            const phrase = "ЛЮБЛЮ ТЕБЯ МУР ❤️ ";
+            let charIndex = 0;
+            const fontSize = parseFloat(getComputedStyle(loveWall).fontSize);
+            const lineHeight = parseFloat(getComputedStyle(loveWall).lineHeight);
+            const charWidth = fontSize * 0.6;
+            const cols = Math.floor(window.innerWidth / charWidth);
+            const rows = Math.floor(window.innerHeight / lineHeight);
+            const heartScale = 3; 
+            const pixelScale = Math.min(window.innerWidth, window.innerHeight) / heartScale;
+
+            for (let y = 0; y < rows; y++) {
+                let line = "";
+                for (let x = 0; x < cols; x++) {
+                    const px = (x - cols / 2) * charWidth;
+                    const py = (y - rows / 2) * lineHeight;
+                    let nx = px / (pixelScale / 2.5);
+                    let ny = py / (pixelScale / 2.5) * -1;
+                    ny += 0.3; 
+                    const isInsideHeart = Math.pow(nx * nx + ny * ny - 1, 3) - nx * nx * ny * ny * ny < 0;
+                    if (isInsideHeart) line += "  "; 
+                    else {
+                        line += phrase[charIndex % phrase.length];
+                        charIndex++;
+                    }
+                }
+                const div = document.createElement('div');
+                div.textContent = line;
+                loveWall.appendChild(div);
+                await sleep(20); 
+                loveWall.scrollTop = loveWall.scrollHeight;
+            }
+        }
+
+        window.onload = startSequence;
     </script>
 </body>
 </html>
